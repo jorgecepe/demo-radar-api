@@ -1,0 +1,45 @@
+# Proyecto Docker aislado: nombre propio, red propia y volumen propio.
+# No comparte nada con los demas contenedores del VPS.
+name: radar-chile
+
+services:
+  radar-db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: radar
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?define POSTGRES_PASSWORD en el archivo .env}
+      POSTGRES_DB: radar
+    volumes:
+      - radar-pgdata:/var/lib/postgresql/data
+    networks:
+      - radar-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U radar -d radar"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  radar-api:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      radar-db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://radar:${POSTGRES_PASSWORD}@radar-db:5432/radar
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      PORT: 3000
+      NODE_ENV: production
+    # Publicamos solo en localhost del VPS. Caddy se encarga de exponerlo con HTTPS.
+    ports:
+      - "127.0.0.1:8092:3000"
+    networks:
+      - radar-net
+
+networks:
+  radar-net:
+    driver: bridge
+
+volumes:
+  radar-pgdata:

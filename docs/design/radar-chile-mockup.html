@@ -1,0 +1,318 @@
+<title>Radar Chile</title>
+<style>
+  :root{
+    --bg:#F4F6F8; --surface:#FFFFFF; --surface-2:#EDF0F4; --border:#E0E4EA;
+    --text:#151A21; --muted:#586173; --faint:#8A93A2;
+    --accent:#B26B3F; --accent-ink:#8F5330; --accent-soft:rgba(178,107,63,.12);
+    --up:#1F9D6B; --up-soft:rgba(31,157,107,.12);
+    --down:#CF5540; --down-soft:rgba(207,85,64,.12);
+    --sev-low:#3B9B6E; --sev-mid:#C08A2E; --sev-high:#CF5540;
+    --radius:14px; --radius-sm:9px;
+    --font:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --shadow:0 1px 2px rgba(20,26,33,.04),0 8px 24px -16px rgba(20,26,33,.18);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0C1016; --surface:#141A22; --surface-2:#1A222D; --border:#24303C;
+      --text:#E7EBF1; --muted:#9AA5B4; --faint:#6B7686;
+      --accent:#CE8F62; --accent-ink:#D8A079; --accent-soft:rgba(206,143,98,.15);
+      --up:#40BE8C; --up-soft:rgba(64,190,140,.15);
+      --down:#E67659; --down-soft:rgba(230,118,89,.15);
+      --sev-low:#43B583; --sev-mid:#D6A23F; --sev-high:#E67659;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 32px -18px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0C1016; --surface:#141A22; --surface-2:#1A222D; --border:#24303C;
+    --text:#E7EBF1; --muted:#9AA5B4; --faint:#6B7686;
+    --accent:#CE8F62; --accent-ink:#D8A079; --accent-soft:rgba(206,143,98,.15);
+    --up:#40BE8C; --up-soft:rgba(64,190,140,.15);
+    --down:#E67659; --down-soft:rgba(230,118,89,.15);
+    --sev-low:#43B583; --sev-mid:#D6A23F; --sev-high:#E67659;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 32px -18px rgba(0,0,0,.6);
+  }
+  :root[data-theme="light"]{
+    --bg:#F4F6F8; --surface:#FFFFFF; --surface-2:#EDF0F4; --border:#E0E4EA;
+    --text:#151A21; --muted:#586173; --faint:#8A93A2;
+    --accent:#B26B3F; --accent-ink:#8F5330; --accent-soft:rgba(178,107,63,.12);
+    --up:#1F9D6B; --up-soft:rgba(31,157,107,.12);
+    --down:#CF5540; --down-soft:rgba(207,85,64,.12);
+    --sev-low:#3B9B6E; --sev-mid:#C08A2E; --sev-high:#CF5540;
+    --shadow:0 1px 2px rgba(20,26,33,.04),0 8px 24px -16px rgba(20,26,33,.18);
+  }
+
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.5;
+    -webkit-font-smoothing:antialiased;margin:0;padding:0}
+  .page{max-width:1080px;margin:0 auto;padding:22px 20px 40px}
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+  /* Topbar */
+  .top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .radar{width:38px;height:38px;flex:none;color:var(--accent)}
+  .radar .ring{fill:none;stroke:currentColor;opacity:.32}
+  .radar .grid-l{stroke:currentColor;opacity:.18}
+  .radar .sweep{transform-origin:20px 20px;animation:sweep 4.4s linear infinite;color:var(--accent)}
+  .radar .blip{fill:var(--accent)}
+  @keyframes sweep{to{transform:rotate(360deg)}}
+  h1{font-size:1.15rem;letter-spacing:.02em;margin:0;font-weight:680;line-height:1.1}
+  .brand .sub{display:block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:600;margin-top:2px}
+  .top-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .date{font-size:.9rem;color:var(--muted);text-transform:capitalize}
+  .stamp{display:inline-flex;align-items:center;gap:6px;font-size:.74rem;color:var(--muted);
+    background:var(--surface-2);border:1px solid var(--border);border-radius:100px;padding:4px 10px}
+  .stamp .dot{width:6px;height:6px;border-radius:50%;background:var(--up);box-shadow:0 0 0 3px var(--up-soft)}
+  .tbtn{appearance:none;border:1px solid var(--border);background:var(--surface);color:var(--muted);
+    width:34px;height:34px;border-radius:9px;cursor:pointer;display:grid;place-items:center;transition:.15s}
+  .tbtn:hover{color:var(--accent);border-color:var(--accent)}
+  .tbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* Resumen */
+  .brief{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:18px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden;margin-bottom:20px}
+  .brief::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
+  .brief .eyebrow{display:flex;align-items:center;gap:8px;font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--accent-ink);font-weight:700;margin-bottom:8px}
+  .brief .eyebrow .by{color:var(--faint);font-weight:600;letter-spacing:.04em;text-transform:none}
+  .brief p{margin:0;font-size:1.02rem;line-height:1.62;text-wrap:pretty;max-width:70ch}
+  .brief p b{color:var(--text);font-weight:680}
+
+  /* Grid indicadores */
+  .sec-label{font-size:.74rem;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);
+    font-weight:700;margin:24px 2px 12px}
+  .grid-ind{display:grid;grid-template-columns:repeat(auto-fill,minmax(206px,1fr));gap:13px}
+  .ind{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:14px 15px 13px;display:flex;flex-direction:column;gap:9px;min-height:132px;box-shadow:var(--shadow)}
+  .ind-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+  .ind-name{font-size:.82rem;font-weight:620;color:var(--muted);line-height:1.25}
+  .ind-tag{font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);
+    border:1px solid var(--border);border-radius:100px;padding:2px 7px;white-space:nowrap;font-weight:600}
+  .ind-value{font-size:1.72rem;font-weight:700;letter-spacing:-.01em;line-height:1;margin-top:2px}
+  .ind-value .unit{font-size:.86rem;font-weight:600;color:var(--faint);margin-right:2px}
+  .ind-foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:auto}
+  .chg{display:inline-flex;align-items:center;gap:3px;font-size:.78rem;font-weight:680;
+    padding:2px 7px;border-radius:7px}
+  .chg.up{color:var(--up);background:var(--up-soft)} .chg.down{color:var(--down);background:var(--down-soft)}
+  .chg.flat{color:var(--muted);background:var(--surface-2)}
+  .chg-abs{font-size:.76rem;color:var(--faint)}
+  .spark{width:100%;height:34px;margin-top:2px}
+  .spark-line{fill:none;stroke:var(--accent);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+  .spark-area{fill:var(--accent-soft);stroke:none}
+  .spark-dot{fill:var(--accent)}
+
+  /* Fila inferior */
+  .row2{display:grid;grid-template-columns:1fr 1.25fr;gap:13px;margin-top:13px}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:16px 17px;box-shadow:var(--shadow)}
+  .panel h2{font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);
+    font-weight:700;margin:0 0 12px}
+  .holy{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .holy .big{font-size:1.5rem;font-weight:700;letter-spacing:-.01em}
+  .holy .cd{font-size:.82rem;color:var(--accent-ink);font-weight:680;background:var(--accent-soft);
+    padding:3px 9px;border-radius:100px}
+  .holy .when{font-size:.92rem;color:var(--muted);text-transform:capitalize;margin-top:6px;width:100%}
+  .holy .kind{margin-top:11px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--faint);font-weight:600;border-top:1px solid var(--border);padding-top:11px}
+  .quakes{display:flex;flex-direction:column;gap:2px}
+  .q{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:9px 2px;
+    border-top:1px solid var(--border)}
+  .q:first-child{border-top:none}
+  .mag{font-variant-numeric:tabular-nums;font-weight:720;font-size:.98rem;width:44px;text-align:center;
+    padding:5px 0;border-radius:8px}
+  .mag.low{color:var(--sev-low);background:var(--up-soft)}
+  .mag.mid{color:var(--sev-mid);background:rgba(192,138,46,.13)}
+  .mag.high{color:var(--sev-high);background:var(--down-soft)}
+  .q .place{font-size:.9rem;font-weight:600;line-height:1.2}
+  .q .meta{font-size:.75rem;color:var(--faint);margin-top:2px}
+  .q .time{font-size:.78rem;color:var(--muted);text-align:right;white-space:nowrap}
+
+  footer{margin-top:26px;padding-top:16px;border-top:1px solid var(--border);
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    font-size:.78rem;color:var(--faint)}
+  footer .src b{color:var(--muted);font-weight:600}
+  .preview-flag{display:inline-flex;align-items:center;gap:6px;color:var(--accent-ink);font-weight:600}
+  .preview-flag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+  @media (max-width:640px){
+    .row2{grid-template-columns:1fr}
+    .ind-value{font-size:1.55rem}
+    .date{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .radar .sweep{animation:none}
+    *{transition:none!important}
+  }
+</style>
+
+<div class="page">
+  <header class="top">
+    <div class="brand">
+      <svg class="radar" viewBox="0 0 40 40" aria-hidden="true">
+        <circle class="ring" cx="20" cy="20" r="17.5"/>
+        <circle class="ring" cx="20" cy="20" r="11.5"/>
+        <circle class="ring" cx="20" cy="20" r="5.5"/>
+        <line class="grid-l" x1="20" y1="2.5" x2="20" y2="37.5"/>
+        <line class="grid-l" x1="2.5" y1="20" x2="37.5" y2="20"/>
+        <g class="sweep"><line x1="20" y1="20" x2="20" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>
+        <circle class="blip" cx="28.5" cy="13.5" r="2.1"/>
+      </svg>
+      <div>
+        <h1>Radar Chile</h1>
+        <span class="sub">Indicadores del país</span>
+      </div>
+    </div>
+    <div class="top-right">
+      <span class="date num">sábado 18 de julio de 2026</span>
+      <span class="stamp"><span class="dot"></span>Actualizado 06:00</span>
+      <button class="tbtn" id="theme" aria-label="Cambiar tema claro u oscuro" title="Cambiar tema">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5 5l1.4 1.4M17.6 17.6L19 19M19 5l-1.4 1.4M6.4 17.6L5 19"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <section class="brief" aria-label="Resumen del día">
+    <div class="eyebrow">Resumen del día <span class="by">· escrito por Claude</span></div>
+    <p>Buenos días. Al <b>sábado 18 de julio</b>, el dólar observado retrocede a <b>$924,5</b> (−$3,2 frente al cierre anterior), mientras el euro se sostiene sobre los $1.060. La <b>UF</b> continúa su alza gradual y llega a <b>$40.844,79</b>. La libra de <b>cobre</b> sube a US$6,17, un respiro para las cuentas fiscales. En lo macro, el IPC de junio marcó −0,2% y la <b>TPM</b> se mantiene en 4,5%. El próximo feriado, la Asunción de la Virgen, es en 28 días más.</p>
+  </section>
+
+  <div class="sec-label">Indicadores</div>
+  <section class="grid-ind" aria-label="Indicadores económicos">
+
+    <article class="ind">
+      <div class="ind-head"><span class="ind-name">UF</span><span class="ind-tag">diaria</span></div>
+      <div class="ind-value num"><span class="unit">$</span>40.844,79</div>
+      <div class="ind-foot"><span class="chg up num">▲ 0,03%</span><span class="chg-abs num">+$12,30</span></div>
+      <div class="spark" data-series="40760,40768,40775,40781,40790,40797,40803,40811,40818,40825,40832,40838,40844,40845"></div>
+    </article>
+
+    <article class="ind">
+      <div class="ind-head"><span class="ind-name">Dólar observado</span><span class="ind-tag">diario</span></div>
+      <div class="ind-value num"><span class="unit">$</span>924,50</div>
+      <div class="ind-foot"><span class="chg down num">▼ 0,35%</span><span class="chg-abs num">−$3,20</span></div>
+      <div class="spark" data-series="931,929,933,936,934,930,928,932,935,933,929,927,928,924.5"></div>
+    </article>
+
+    <article class="ind">
+      <div class="ind-head"><span class="ind-name">Euro</span><span class="ind-tag">diario</span></div>
+      <div class="ind-value num"><span class="unit">$</span>1.060,81</div>
+      <div class="ind-foot"><span class="chg up num">▲ 0,14%</span><span class="chg-abs num">+$1,50</span></div>
+      <div class="spark" data-series="1054,1057,1055,1059,1062,1058,1056,1060,1063,1059,1057,1061,1059,1060.8"></div>
+    </article>
+
+    <article class="ind">
+      <div class="ind-head"><span class="ind-name">Cobre</span><span class="ind-tag">libra · diario</span></div>
+      <div class="ind-value num"><span class="unit">US$</span>6,17</div>
+      <div class="ind-foot"><span class="chg up num">▲ 0,65%</span><span class="chg-abs num">+0,04</span></div>
+      <div class="spark" data-series="5.98,6.01,6.03,6.00,6.05,6.08,6.06,6.09,6.12,6.10,6.13,6.15,6.14,6.17"></div>
+    </article>
+
+    <article class="ind">
+      <div class="ind-head"><span class="ind-name">Bitcoin</span><span class="ind-tag">diario</span></div>
+      <div class="ind-value num"><span class="unit">US$</span>63.791</div>
+      <div class="ind-foot"><span class="chg up num">▲ 1,21%</span><span class="chg-abs num">+US$760</span></div>
+      <div class="spark" data-series="61200,61800,60900,62400,63100,62600,61900,63300,64100,63500,62800,63600,63200,63791"></div>
+    </article>
+
+    <article class="ind">
+      <div class="ind-head"><span class="ind-name">UTM</span><span class="ind-tag">mensual</span></div>
+      <div class="ind-value num"><span class="unit">$</span>71.649</div>
+      <div class="ind-foot"><span class="chg flat">julio 2026</span><span class="chg-abs">valor del mes</span></div>
+    </article>
+
+    <article class="ind">
+      <div class="ind-head"><span class="ind-name">IPC</span><span class="ind-tag">mensual</span></div>
+      <div class="ind-value num">−0,2<span class="unit" style="margin-left:2px">%</span></div>
+      <div class="ind-foot"><span class="chg down">▼ variación</span><span class="chg-abs">junio 2026</span></div>
+    </article>
+
+    <article class="ind">
+      <div class="ind-head"><span class="ind-name">TPM</span><span class="ind-tag">política</span></div>
+      <div class="ind-value num">4,50<span class="unit" style="margin-left:2px">%</span></div>
+      <div class="ind-foot"><span class="chg flat">sin cambios</span><span class="chg-abs">Banco Central</span></div>
+    </article>
+
+    <article class="ind">
+      <div class="ind-head"><span class="ind-name">Desempleo</span><span class="ind-tag">trimestral</span></div>
+      <div class="ind-value num">9,44<span class="unit" style="margin-left:2px">%</span></div>
+      <div class="ind-foot"><span class="chg flat">móvil</span><span class="chg-abs">INE</span></div>
+    </article>
+
+  </section>
+
+  <div class="row2">
+    <div class="panel" aria-label="Próximo feriado">
+      <h2>Próximo feriado</h2>
+      <div class="holy">
+        <span class="big">Asunción de la Virgen</span>
+        <span class="cd num">en 28 días</span>
+        <span class="when num">sábado 15 de agosto de 2026</span>
+        <span class="kind">Feriado religioso</span>
+      </div>
+    </div>
+
+    <div class="panel" aria-label="Últimos sismos">
+      <h2>Últimos sismos</h2>
+      <div class="quakes">
+        <div class="q">
+          <span class="mag low num">3,8</span>
+          <span><span class="place">Socaire, Antofagasta</span><span class="meta num">108 km de profundidad</span></span>
+          <span class="time">hoy 05:12</span>
+        </div>
+        <div class="q">
+          <span class="mag mid num">4,6</span>
+          <span><span class="place">Frente a Coquimbo</span><span class="meta num">45 km de profundidad</span></span>
+          <span class="time">hoy 02:47</span>
+        </div>
+        <div class="q">
+          <span class="mag high num">5,9</span>
+          <span><span class="place">Costa de Tarapacá</span><span class="meta num">62 km de profundidad</span></span>
+          <span class="time">ayer 22:03</span>
+        </div>
+        <div class="q">
+          <span class="mag low num">3,2</span>
+          <span><span class="place">Cerca de Curicó</span><span class="meta num">90 km de profundidad</span></span>
+          <span class="time">ayer 19:20</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span class="src">Fuentes: <b>mindicador.cl</b> · <b>api.boostr.cl</b></span>
+    <span class="preview-flag">Vista previa de diseño · datos de ejemplo</span>
+  </footer>
+</div>
+
+<script>
+  (function(){
+    var root=document.documentElement;
+    var btn=document.getElementById('theme');
+    if(btn){btn.addEventListener('click',function(){
+      var cur=root.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
+      root.dataset.theme=(cur==='dark')?'light':'dark';
+    });}
+
+    function draw(el){
+      var vals=el.dataset.series.split(',').map(Number);
+      var w=Math.max(el.clientWidth,60), h=34, p=3;
+      var min=Math.min.apply(null,vals), max=Math.max.apply(null,vals);
+      var rng=(max-min)||1, n=vals.length;
+      var pts=vals.map(function(v,i){
+        var x=p+i*(w-2*p)/(n-1);
+        var y=h-p-((v-min)/rng)*(h-2*p);
+        return [Math.round(x*100)/100,Math.round(y*100)/100];
+      });
+      var line=pts.map(function(pt){return pt.join(',');}).join(' ');
+      var area=p+','+(h-p)+' '+line+' '+(w-p)+','+(h-p);
+      var last=pts[n-1];
+      el.innerHTML='<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" aria-hidden="true">'
+        +'<polygon class="spark-area" points="'+area+'"/>'
+        +'<polyline class="spark-line" points="'+line+'"/>'
+        +'<circle class="spark-dot" cx="'+last[0]+'" cy="'+last[1]+'" r="2.3"/></svg>';
+    }
+    function all(){document.querySelectorAll('.spark').forEach(draw);}
+    all();
+    var t;window.addEventListener('resize',function(){clearTimeout(t);t=setTimeout(all,150);});
+  })();
+</script>

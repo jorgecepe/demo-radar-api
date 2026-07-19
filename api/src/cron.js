@@ -2,7 +2,7 @@
 import cron from 'node-cron';
 import { fetchIndicadores, fetchProximoFeriado } from './sources.js';
 import { generarResumen } from './resumen.js';
-import { guardarSnapshot, guardarResumen, ultimoResumen } from './db.js';
+import { guardarSnapshot, guardarResumen } from './db.js';
 
 // Un ciclo completo: captura indicadores, los guarda y genera el resumen.
 export async function ejecutarCiclo() {
@@ -25,10 +25,7 @@ export function programarCron() {
     ejecutarCiclo().catch((e) => console.error('[cron] fallo el ciclo:', e.message));
   });
 
-  ultimoResumen()
-    .then((r) => {
-      if (!r) return ejecutarCiclo();
-      console.log('[cron] ya existe un resumen previo, no se fuerza en el arranque');
-    })
-    .catch((e) => console.error('[cron] error en el arranque:', e.message));
+  // Al arrancar ejecutamos un ciclo siempre, para tener datos y resumen frescos.
+  // Asi, reiniciar el contenedor equivale a forzar una actualizacion del radar.
+  ejecutarCiclo().catch((e) => console.error('[cron] error en el arranque:', e.message));
 }

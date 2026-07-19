@@ -56,7 +56,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:
 h1{font-size:1.15rem;letter-spacing:.02em;margin:0;font-weight:680;line-height:1.1}
 .brand .sub{display:block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:600;margin-top:2px}
 .top-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.date{font-size:.9rem;color:var(--muted);text-transform:capitalize}
+.date{font-size:.9rem;color:var(--muted)}
 .stamp{display:inline-flex;align-items:center;gap:6px;font-size:.74rem;color:var(--muted);background:var(--surface-2);border:1px solid var(--border);border-radius:100px;padding:4px 10px}
 .stamp .dot{width:6px;height:6px;border-radius:50%;background:var(--up);box-shadow:0 0 0 3px var(--up-soft)}
 .tbtn{appearance:none;border:1px solid var(--border);background:var(--surface);color:var(--muted);width:34px;height:34px;border-radius:9px;cursor:pointer;display:grid;place-items:center;transition:.15s}
@@ -94,7 +94,7 @@ h1{font-size:1.15rem;letter-spacing:.02em;margin:0;font-weight:680;line-height:1
 .holy{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .holy .big{font-size:1.5rem;font-weight:700;letter-spacing:-.01em}
 .holy .cd{font-size:.82rem;color:var(--accent-ink);font-weight:680;background:var(--accent-soft);padding:3px 9px;border-radius:100px}
-.holy .when{font-size:.92rem;color:var(--muted);text-transform:capitalize;margin-top:6px;width:100%}
+.holy .when{font-size:.92rem;color:var(--muted);margin-top:6px;width:100%}
 .holy .kind{margin-top:11px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);font-weight:600;border-top:1px solid var(--border);padding-top:11px;width:100%}
 .quakes{display:flex;flex-direction:column;gap:2px}
 .q{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:9px 2px;border-top:1px solid var(--border)}

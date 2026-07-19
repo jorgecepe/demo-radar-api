@@ -1,6 +1,6 @@
 import Sparkline from './components/Sparkline';
 import ThemeToggle from './components/ThemeToggle';
-import { META, formatoValor, formatoVariacion, severidadSismo, fechaLarga, cuandoSismo } from './lib/format';
+import { META, cap, formatoValor, formatoVariacion, severidadSismo, fechaLarga, cuandoSismo } from './lib/format';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'https://radar-api.luminaconsulting.ai';
 
@@ -37,9 +37,9 @@ export default async function Page() {
     data = null;
   }
 
-  const hoy = new Date().toLocaleDateString('es-CL', {
+  const hoy = cap(new Date().toLocaleDateString('es-CL', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/Santiago',
-  });
+  }));
   const actualizado = data?.actualizado
     ? new Date(data.actualizado).toLocaleTimeString('es-CL', {
         hour: '2-digit', minute: '2-digit', timeZone: 'America/Santiago',

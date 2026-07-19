@@ -42,14 +42,19 @@ export function severidadSismo(mag) {
   return 'high';
 }
 
+// Capitaliza solo la primera letra, sin tocar el resto.
+export function cap(s) {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
+
 // Fecha en formato largo chileno. Para fechas puras (YYYY-MM-DD) fijamos
 // mediodia UTC para que la zona horaria no corra el dia.
 export function fechaLarga(iso, tz = 'America/Santiago') {
   if (!iso) return '';
   const d = new Date(iso.length <= 10 ? `${iso}T12:00:00Z` : iso);
-  return d.toLocaleDateString('es-CL', {
+  return cap(d.toLocaleDateString('es-CL', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: tz,
-  });
+  }));
 }
 
 // "hoy 05:12", "ayer 22:03" o "15-08 09:20" para un sismo.
